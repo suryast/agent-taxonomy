@@ -1,0 +1,55 @@
+{
+  "name": "agent-taxonomy",
+  "version": "0.1.0",
+  "description": "Evolutionary taxonomy framework for AI agents. Classify any agent into a biological species with binomial nomenclature, rarity tiers, evolution stages, and portrait prompts. Like Pokédex for AI agents.",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "bin": {
+    "agent-taxonomy": "bin/cli.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/*.test.js",
+    "demo": "node bin/cli.js demo"
+  },
+  "keywords": [
+    "ai-agents",
+    "taxonomy",
+    "evolution",
+    "llm",
+    "classification",
+    "genome",
+    "species",
+    "lamarckian",
+    "multi-agent",
+    "openclaw",
+    "naming",
+    "binomial"
+  ],
+  "author": "Surya Setiyaputra",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suryast/agent-taxonomy.git"
+  },
+  "homepage": "https://github.com/suryast/agent-taxonomy#readme",
+  "bugs": {
+    "url": "https://github.com/suryast/agent-taxonomy/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/suryast"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "src/index.js",
+    "src/index.d.ts",
+    "src/classifier.js",
+    "src/taxonomy.js",
+    "bin/",
+    "README.md",
+    "LICENSE"
+  ]
+}

@@ -1,0 +1,9 @@
+scripts/
+docs/
+examples/
+diagrams/
+SHAPING.md
+CONTRIBUTING.md
+.github/
+*.test.js
+*.py

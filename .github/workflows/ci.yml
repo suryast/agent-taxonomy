@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Unit tests
+        run: node --test src/*.test.js
+
+      - name: Package exports smoke test
+        run: |
+          node -e "
+            import { classify, validate, VALID } from './src/index.js';
+            const r = classify({
+              name: 'ci-test', domain: 'Automatia', kingdom: 'Monagentia',
+              phylum: 'Amnesia', evolutionClass: 'Darwinia', order: 'Mesomutas',
+              family: 'Autoselectae', genus: 'Fabricator',
+            });
+            if (!r.binomial) throw new Error('classify() returned no binomial');
+            if (!r.rarity) throw new Error('classify() returned no rarity');
+            const v = validate({});
+            if (v.valid) throw new Error('validate({}) should fail');
+            if (!VALID.domain.length) throw new Error('VALID.domain is empty');
+            console.log('✅ Exports OK:', r.binomial, r.rarity);
+          "
+
+      - name: CLI smoke test
+        run: node bin/cli.js demo
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install TypeScript
+        run: npm install -g typescript
+
+      - name: Type check
+        run: |
+          cat > /tmp/tsconfig.json << 'EOF'
+          {
+            "compilerOptions": {
+              "strict": true,
+              "noEmit": true,
+              "moduleResolution": "node",
+              "module": "ESNext",
+              "target": "ES2022",
+              "esModuleInterop": true
+            },
+            "include": ["check.ts"]
+          }
+          EOF
+          cat > /tmp/check.ts << 'EOF'
+          import { classify, validate, VALID, AgentTraits, SpeciesResult, Domain, Rarity } from "../src/index.js";
+
+          // Type-level checks — these must compile without errors
+          const traits: AgentTraits = {
+            name: "test",
+            domain: "Evolventia",
+            kingdom: "Polyagentia",
+            phylum: "Hierarchia",
+            evolutionClass: "Lamarckia",
+            order: "Bradymutas",
+            family: "Hybridselectae",
+            genus: "Coordinator",
+            customEpithet: "kei",
+            numSkills: 26,
+            numCrons: 87,
+            numRules: 24,
+            notableGenes: ["memory-compression"],
+          };
+
+          const result: SpeciesResult = classify(traits);
+          const binomial: string = result.binomial;
+          const rarity: Rarity = result.rarity;
+          const stage: string = result.evolutionStage;
+
+          const validation = validate({});
+          const valid: boolean = validation.valid;
+          const errors: string[] = validation.errors;
+
+          const domains: readonly Domain[] = VALID.domain;
+
+          // @ts-expect-error — "BadValue" is not a valid Domain
+          const bad: AgentTraits = { ...traits, domain: "BadValue" };
+          EOF
+          cd /tmp && tsc --project tsconfig.json

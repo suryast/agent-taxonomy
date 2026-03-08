@@ -1,0 +1,17 @@
+{
+  "name": "agent-taxonomy-registry",
+  "version": "0.1.0",
+  "description": "Agent Taxonomy Species Registry — Cloudflare Worker + D1 + A2A",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute agent-taxonomy --file=schema.sql",
+    "db:init:local": "wrangler d1 execute agent-taxonomy --local --file=schema.sql",
+    "test": "bash test.sh"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

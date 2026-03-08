@@ -1,0 +1,15 @@
+name = "agent-taxonomy-registry"
+main = "src/index.js"
+compatibility_date = "2024-09-25"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "agent-taxonomy"
+database_id = "placeholder"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "placeholder"
+
+[vars]
+REGISTRY_BASE_URL = ""
