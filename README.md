@@ -7,6 +7,8 @@ Treat your AI agent's configuration as a living organism — with a genome that 
 > *"One day, frontier AI research used to be done by meat computers..."*
 > — @karpathy, March 2026
 
+### 🔬 [Take the Interactive Classifier → agent-taxonomist.dev](https://agent-taxonomist.dev/)
+
 ---
 
 ## The Core Insight
@@ -349,7 +351,7 @@ Not all genes should be mutable. Essential genes are frozen:
 
 This is a research framework, not a library. To apply it to your agent:
 
-1. **[Classify your agent](examples/classify-your-agent.md)** — answer 8 questions to get your species name
+1. **[Classify your agent](https://agent-taxonomist.dev/)** — take the interactive quiz to discover your species
 2. **Map your config files** to genome components
 3. **Identify your frozen genes** — what should never change?
 4. **Set up fitness metrics** — how do you measure improvement?
