@@ -1,6 +1,6 @@
 {
   "name": "agent-taxonomy",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Evolutionary taxonomy framework for AI agents. Classify any agent into a biological species with binomial nomenclature, rarity tiers, evolution stages, and portrait prompts. Like Pokédex for AI agents.",
   "main": "src/index.js",
   "types": "src/index.d.ts",

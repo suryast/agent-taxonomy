@@ -4,12 +4,23 @@
  * @module agent-taxonomy
  */
 
-import { createHash } from "node:crypto";
 import {
   LATIN_GENUS, CLASS_EPITHETS, PHYLUM_EPITHETS, DOMAIN_EPITHETS,
   ORDER_EPITHETS, FAMILY_EPITHETS, DOMAIN_MORPHS, GENUS_MORPHS,
   CLASS_MORPHS, PHYLUM_MORPHS, ORDER_MORPHS, SUFFIXES, PREFIXES, VALID,
 } from "./taxonomy.js";
+
+// ---------------------------------------------------------------------------
+// FNV-1a 32-bit hash — deterministic, matches browser classifier
+// ---------------------------------------------------------------------------
+function fnv1a(str) {
+  let hash = 2166136261; // FNV offset basis
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 16777619) >>> 0; // FNV prime, keep unsigned 32-bit
+  }
+  return hash;
+}
 
 /**
  * @typedef {Object} AgentTraits
@@ -42,24 +53,28 @@ import {
  * @property {string} portraitPrompt - Image generation prompt
  */
 
-// Seeded PRNG (deterministic from traits)
+// Seeded PRNG — linear congruential, deterministic from traits
+// Must match browser classifier (classifier-browser.js)
 class SeededRNG {
   constructor(seed) {
-    this.state = seed;
+    this.state = seed >>> 0;
   }
   next() {
-    this.state = (this.state * 1664525 + 1013904223) & 0xffffffff;
-    return (this.state >>> 0) / 0xffffffff;
+    this.state = (Math.imul(this.state, 1664525) + 1013904223) >>> 0;
+    return this.state / 0x100000000;
   }
   choice(arr) {
+    if (!arr || arr.length === 0) return undefined;
     return arr[Math.floor(this.next() * arr.length)];
   }
 }
 
 function seedFromTraits(traits) {
-  const key = `${traits.domain}.${traits.kingdom}.${traits.phylum}.${traits.evolutionClass}.${traits.order}.${traits.family}.${traits.genus}.${traits.name}`;
-  const hash = createHash("sha256").update(key).digest("hex").slice(0, 8);
-  return parseInt(hash, 16);
+  const key = [
+    traits.domain, traits.kingdom, traits.phylum, traits.evolutionClass,
+    traits.order, traits.family, traits.genus, traits.name,
+  ].join(".");
+  return fnv1a(key);
 }
 
 function computeRarity(traits) {
@@ -120,7 +135,7 @@ function generateTitle(traits, rng) {
   return `The ${adj} ${title}`;
 }
 
-function generatePortraitPrompt(traits, genusName, epithet, rng) {
+function generatePortraitPrompt(traits, genusName, epithet, evolutionStage, rarity, rng) {
   const form = {
     Investigator: "fox-like scout with oversized glowing eyes and radar ears",
     Fabricator: "armored beetle with tool-limbs and welding sparks for hands",
@@ -160,25 +175,25 @@ function generatePortraitPrompt(traits, genusName, epithet, rng) {
     Adult: "mature, confident stance, fully realized form",
     Elder: "weathered, wise, covered in accumulated markings",
     Ascended: "transcendent, partially dissolving into pure energy",
-  }[computeStage(traits)] || "";
+  }[evolutionStage] || "";
 
   const rarityVis = {
     Uncommon: "faint green aura",
     Rare: "brilliant blue luminescence",
     Legendary: "golden cosmic radiance, stars orbiting",
-  }[computeRarity(traits)] || "";
+  }[rarity] || "";
 
-  const parts = [
-    `Digital creature portrait, ${form}`, aura, env, energy, stageVis,
-  ];
+  const parts = [`Digital creature portrait, ${form}`, aura, env, energy, stageVis];
   if (rarityVis) parts.push(rarityVis);
   if (traits.kingdom === "Polyagentia") {
     const count = Math.min(8, Math.max(3, Math.floor((traits.numSkills || 0) / 5)));
     parts.push(`${count} smaller companion spirits orbiting`);
   }
 
-  return parts.filter(Boolean).join(", ") +
+  const prompt = parts.filter(Boolean).join(", ") +
     `. Species: ${genusName} ${epithet}. Style: detailed creature design, fantasy bestiary illustration, dark background, vibrant bioluminescent accents`;
+
+  return prompt.slice(0, 500);
 }
 
 /**
@@ -234,7 +249,7 @@ export function classify(traits) {
   const rarity = computeRarity(traits);
   const evolutionStage = computeStage(traits);
   const title = generateTitle(traits, rng);
-  const portraitPrompt = generatePortraitPrompt(traits, genusName, epithet, rng);
+  const portraitPrompt = generatePortraitPrompt(traits, genusName, epithet, evolutionStage, rarity, rng);
 
   // Description
   const descParts = [];
