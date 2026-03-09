@@ -23,7 +23,7 @@ jobs:
 
       - name: Package exports smoke test
         run: |
-          node -e "
+          node --input-type=module -e "
             import { classify, validate, VALID } from './src/index.js';
             const r = classify({
               name: 'ci-test', domain: 'Automatia', kingdom: 'Monagentia',
