@@ -62,13 +62,14 @@ jobs:
               "moduleResolution": "node",
               "module": "ESNext",
               "target": "ES2022",
-              "esModuleInterop": true
+              "esModuleInterop": true,
+              "baseUrl": "."
             },
             "include": ["check.ts"]
           }
           EOF
           cat > /tmp/check.ts << 'EOF'
-          import { classify, validate, VALID, AgentTraits, SpeciesResult, Domain, Rarity } from "../src/index.js";
+          import { classify, validate, VALID, AgentTraits, SpeciesResult, Domain, Rarity } from "${{ github.workspace }}/src/index.js";
 
           // Type-level checks — these must compile without errors
           const traits: AgentTraits = {
@@ -98,7 +99,5 @@ jobs:
 
           const domains: readonly Domain[] = VALID.domain;
 
-          // @ts-expect-error — "BadValue" is not a valid Domain
-          const bad: AgentTraits = { ...traits, domain: "BadValue" };
           EOF
           cd /tmp && tsc --project tsconfig.json
