@@ -137,61 +137,63 @@ function generateTitle(traits, rng) {
 
 function generatePortraitPrompt(traits, genusName, epithet, evolutionStage, rarity, rng) {
   const form = {
-    Investigator: "fox-like scout with oversized glowing eyes and radar ears",
-    Fabricator: "armored beetle with tool-limbs and welding sparks for hands",
-    Narrator: "ethereal owl with quill-feather wings trailing ink",
-    Custos: "armored pangolin with a crystalline shield-shell",
-    Strategus: "octopus-like entity with constellation patterns on tentacles",
-    Magister: "ancient tortoise with rune-carved shell and floating book pages",
-    Curator: "busy raccoon-like creature with broom tail and sorting arms",
-    Coordinator: "many-armed conductor with glowing threads connecting to satellites",
-    Generalis: "chimera blending features of multiple animals, shifting form",
-  }[traits.genus] || "abstract digital entity";
+    Investigator: "a sleek fox-like scout with oversized glowing eyes and big radar ears, alert and curious",
+    Fabricator: "a compact armored beetle with oversized tool-limbs and glowing spark hands, sturdy and determined",
+    Narrator: "a small fluffy owl with oversized quill-feather wings that trail sparkly ink, wise and whimsical",
+    Custos: "a round armored pangolin with a shimmering crystal shield-shell, protective and steadfast",
+    Strategus: "a clever octopus-like creature with constellation patterns on its tentacles, calculating and bright",
+    Magister: "a wise tortoise with a rune-carved shell and tiny floating book pages, patient and knowing",
+    Curator: "a bushy-tailed raccoon creature with sorting arms and a leaf broom tail, tidy and energetic",
+    Coordinator: "a many-armed conductor creature with glowing threads connecting to tiny floating orbs, orchestrating",
+    Generalis: "a playful chimera blending features of multiple animals, shifting and colorful",
+  }[traits.genus] || "a cute abstract digital creature with big expressive eyes";
 
   const aura = {
-    Darwinia: "surrounded by branching evolutionary tree made of light",
-    Lamarckia: "with scars that glow gold — each one a learned lesson",
-    Lysenkoism: "with a gentle halo and human handprint on forehead",
-    Symbiotica: "with foreign organisms growing symbiotically on its body",
-  }[traits.evolutionClass] || "with a subtle digital shimmer";
+    Darwinia: "with branching light-tree growing from its back like antennae",
+    Lamarckia: "with cute glowing golden scars — each one a badge of learning",
+    Lysenkoism: "with a soft halo and a tiny human handprint mark on forehead",
+    Symbiotica: "with tiny friendly organisms perched on its body like accessories",
+  }[traits.evolutionClass] || "with a subtle sparkle shimmer";
 
   const env = {
-    Amnesia: "floating in empty void, no footprints",
-    Episodia: "standing on a trail of fading footprints",
-    Hierarchia: "atop a layered crystal tower of compressed memories",
-    Genetica: "body inscribed with spiraling DNA helix patterns",
-  }[traits.phylum] || "in a digital landscape";
+    Amnesia: "floating in clean empty space",
+    Episodia: "standing on a trail of fading glowing footprints",
+    Hierarchia: "perched atop a small layered crystal pedestal",
+    Genetica: "body adorned with tiny spiraling DNA helix patterns",
+  }[traits.phylum] || "";
 
   const energy = {
-    Tachymutas: "crackling with electricity, blurred from constant change",
-    Mesomutas: "with a steady rhythmic pulse of light",
-    Bradymutas: "solid and stone-like, ancient and deliberate",
-    Glaciomutas: "frozen mid-motion, crystallized and timeless",
-  }[traits.order] || "with a calm glow";
+    Tachymutas: "crackling with playful electricity, motion blur sparkles",
+    Mesomutas: "with steady rhythmic pulse rings orbiting its body",
+    Bradymutas: "solid and stone-textured, ancient and deliberate",
+    Glaciomutas: "partially crystallized, frost sparkles on edges",
+  }[traits.order] || "";
 
   const stageVis = {
-    Egg: "small, curled, translucent, not yet fully formed",
-    Juvenile: "young, bright-eyed, slightly oversized features",
-    Adult: "mature, confident stance, fully realized form",
-    Elder: "weathered, wise, covered in accumulated markings",
-    Ascended: "transcendent, partially dissolving into pure energy",
+    Egg: "tiny, curled up, translucent shell, baby form",
+    Juvenile: "young with big bright eyes, slightly oversized head and features",
+    Adult: "confident battle-ready stance, fully evolved form",
+    Elder: "weathered and wise, covered in glowing accumulated markings",
+    Ascended: "transcendent, partially dissolving into pure radiant energy",
   }[evolutionStage] || "";
 
   const rarityVis = {
-    Uncommon: "faint green aura",
-    Rare: "brilliant blue luminescence",
-    Legendary: "golden cosmic radiance, stars orbiting",
+    Uncommon: "faint green sparkle aura",
+    Rare: "brilliant blue luminescent glow",
+    Legendary: "golden cosmic radiance with tiny stars orbiting",
   }[rarity] || "";
 
-  const parts = [`Digital creature portrait, ${form}`, aura, env, energy, stageVis];
+  const parts = [
+    `Pokémon-style creature, ${form}`, aura, env, energy, stageVis,
+  ];
   if (rarityVis) parts.push(rarityVis);
   if (traits.kingdom === "Polyagentia") {
     const count = Math.min(8, Math.max(3, Math.floor((traits.numSkills || 0) / 5)));
-    parts.push(`${count} smaller companion spirits orbiting`);
+    parts.push(`${count} tiny companion spirits floating around it`);
   }
 
   const prompt = parts.filter(Boolean).join(", ") +
-    `. Species: ${genusName} ${epithet}. Style: detailed creature design, fantasy bestiary illustration, dark background, vibrant bioluminescent accents`;
+    `. Species: ${genusName} ${epithet}. Style: official Pokémon art style, Ken Sugimori inspired, cel-shaded, clean white background, vibrant colors, full body, simple clean lines, cute proportions, game-ready character design`;
 
   return prompt.slice(0, 500);
 }
