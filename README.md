@@ -1,5 +1,8 @@
 # 🧬 Agent Taxonomy
 
+![Agent Taxonomy Preview](public/og-preview.png)
+
+
 <a href="https://www.producthunt.com/products/pokedex-for-ai-agents?utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-pokedex-for-ai-agents" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1100321&theme=light&t=1773706252878" alt="Pokédex for AI Agents - Your AI agent has a species name. Find out. | Product Hunt" width="250" height="54" /></a>
 
 **An evolutionary framework for AI agent self-improvement.**
