@@ -50,7 +50,7 @@ jobs:
           node-version: 20
 
       - name: Install TypeScript
-        run: npm install -g typescript
+        run: npm install -g typescript@^5.9.0
 
       - name: Type check
         run: |
