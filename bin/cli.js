@@ -253,6 +253,12 @@ API:
 Docs: https://github.com/suryast/agent-taxonomy
 Sponsor: https://github.com/sponsors/suryast
 `);
+} else if (cmd === undefined || cmd === "--json" || cmd === "classify") {
+  interactive().catch(error => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
 } else {
-  interactive().catch(console.error);
+  console.error(`Unknown command: ${cmd}. Use --help for usage.`);
+  process.exitCode = 1;
 }
