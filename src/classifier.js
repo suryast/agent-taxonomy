@@ -285,7 +285,21 @@ export function classify(traits) {
  */
 export function validate(traits) {
   const errors = [];
-  if (!traits.name) errors.push("name is required");
+  if (traits === null || typeof traits !== "object" || Array.isArray(traits)) {
+    return { valid: false, errors: ["traits must be an object"] };
+  }
+  if (typeof traits.name !== "string" || !traits.name.trim()) errors.push("name is required and must be a non-empty string");
+  for (const field of ["numSkills", "numCrons", "numRules"]) {
+    if (traits[field] !== undefined && (!Number.isSafeInteger(traits[field]) || traits[field] < 0)) {
+      errors.push(`${field} must be a non-negative safe integer`);
+    }
+  }
+  if (traits.customEpithet !== undefined && typeof traits.customEpithet !== "string") {
+    errors.push("customEpithet must be a string");
+  }
+  if (traits.notableGenes !== undefined && (!Array.isArray(traits.notableGenes) || !traits.notableGenes.every(gene => typeof gene === "string"))) {
+    errors.push("notableGenes must be an array of strings");
+  }
   if (!VALID.domain.includes(traits.domain)) errors.push(`domain must be one of: ${VALID.domain.join(", ")}`);
   if (!VALID.kingdom.includes(traits.kingdom)) errors.push(`kingdom must be one of: ${VALID.kingdom.join(", ")}`);
   if (!VALID.phylum.includes(traits.phylum)) errors.push(`phylum must be one of: ${VALID.phylum.join(", ")}`);

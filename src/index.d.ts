@@ -16,8 +16,8 @@
  *   genus: "Coordinator",
  * });
  *
- * console.log(result.binomial);   // "Orchestrus kei"
- * console.log(result.rarity);     // "Legendary"
+ * console.log(result.binomial);   // deterministic genus + auto-generated epithet
+ * console.log(result.rarity);     // "Rare"
  * ```
  */
 
@@ -132,7 +132,7 @@ export function classify(traits: AgentTraits): SpeciesResult;
  * Validate agent traits against the taxonomy.
  * Returns `{ valid: true, errors: [] }` if all traits are acceptable.
  */
-export function validate(traits: Partial<AgentTraits>): ValidationResult;
+export function validate(traits: unknown): ValidationResult;
 
 /** Valid values for each taxonomy level. */
 export const VALID: ValidValues;

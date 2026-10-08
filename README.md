@@ -16,6 +16,14 @@ Treat your AI agent's configuration as a living organism — with a genome that 
 
 ---
 
+## npm package scope
+
+The zero-dependency npm package provides deterministic classification (`classify`), input validation (`validate`), taxonomy values (`VALID`), and a local interactive/demo CLI. Genome files and evolution workflows below are conventions, not functionality implemented by the package.
+
+`validate` accepts unknown external input and reports errors without throwing for malformed JSON values. Names must be non-empty strings; optional counts must be non-negative safe integers; epithets must be strings and notable genes must be arrays of strings. Validate untrusted input before calling `classify`; classification itself is not an input-validation boundary.
+
+The package does not implement A2A or MCP transports, discovery, registration, authentication, or payments. Its classification is descriptive metadata, not proof of agent identity, ownership, capabilities, or safety. An application can integrate these results using its own protocol adapter; taxonomy fields are not standardized A2A/MCP fields. Protocol integration requires separate implementation and testing against the [A2A specification](https://a2a-protocol.org/latest/specification/) or [MCP specification](https://modelcontextprotocol.io/specification/latest).
+
 ## The Core Insight
 
 AI agents that run persistently (on platforms like [OpenClaw](https://github.com/openclaw/openclaw), AutoGPT, CrewAI) accumulate learned behaviors over time:
