@@ -1,0 +1,133 @@
+name: Verify and publish npm release
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish after verification (requires npm trusted publisher setup)'
+        type: boolean
+        default: false
+        required: true
+      expected_version:
+        description: 'Exact stable X.Y.Z from package.json; required for publishing'
+        type: string
+        default: ''
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  EXPECTED_VERSION: ${{ inputs.expected_version || '' }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Check OIDC toolchain and release guards
+        run: |
+          node scripts/release.mjs toolchain
+          node --test scripts/release-guards.node.mjs
+      - name: Test source package
+        run: npm test
+      - name: Pack without lifecycle scripts and bind artifact to source
+        run: |
+          node scripts/release.mjs seal
+          RELEASE_TEST_ARTIFACT=release-artifact node --test scripts/release-guards.node.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: npm-release
+          path: |
+            release-artifact/package.tgz
+            release-artifact/manifest.json
+          if-no-files-found: error
+          retention-days: 7
+
+  consumer:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '24']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: npm-release
+          path: release-artifact
+      - name: Verify the exact artifact and test an installed consumer
+        run: |
+          node scripts/release.mjs verify
+          node scripts/release-consumer.mjs
+
+  environment-preflight:
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.publish == true &&
+      github.repository == 'suryast/agent-taxonomy' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Fail closed unless the existing npm environment is protected
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release-environment.mjs
+
+  publish:
+    needs: [verify, consumer, environment-preflight]
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.publish == true &&
+      github.repository == 'suryast/agent-taxonomy' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PUBLISH_REQUESTED: ${{ inputs.publish }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: npm-release
+          path: release-artifact
+      - name: Publish verified, unreleased artifact using GitHub OIDC only
+        run: node scripts/release.mjs publish
